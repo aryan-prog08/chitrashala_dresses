@@ -16,6 +16,7 @@ const ShopContextProvider = (props) => {
     const [cartItems, setCartItems] = useState({});
     const [products, setProducts] = useState([]);
     const [token, setToken] = useState('');
+    const [recommendations, setRecommendations] = useState([]);
     const navigate = useNavigate();
 
 
@@ -128,6 +129,30 @@ const ShopContextProvider = (props) => {
         }
     }
 
+    const trackProductView = async (productId) => {
+        if (!token) return;
+        try {
+            await axios.post(backendUrl + '/api/recommend/track', { productId }, { headers: { token } });
+            // Refresh recommendations after tracking a view
+            fetchRecommendations(token);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const fetchRecommendations = async (userToken) => {
+        const t = userToken || token;
+        if (!t) return;
+        try {
+            const response = await axios.post(backendUrl + '/api/recommend/get', {}, { headers: { token: t } });
+            if (response.data.success) {
+                setRecommendations(response.data.recommendations);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     useEffect(() => {
         getProductsData();
     }, [])
@@ -136,8 +161,12 @@ const ShopContextProvider = (props) => {
         if (!token && localStorage.getItem('token')) {
             setToken(localStorage.getItem('token'))
             getUserCart(localStorage.getItem('token'));
+            fetchRecommendations(localStorage.getItem('token'));
         }
-    }, [])
+        if (token) {
+            fetchRecommendations(token);
+        }
+    }, [token])
 
  
     const value = {
@@ -145,7 +174,8 @@ const ShopContextProvider = (props) => {
         search, setSearch, showSearch, setShowSearch,
         cartItems, addToCart, getCartCount,
         updateQuantity, getCartAmount, navigate, backendUrl,
-        token, setToken, setCartItems
+        token, setToken, setCartItems,
+        recommendations, trackProductView, fetchRecommendations
     }
 
     return (

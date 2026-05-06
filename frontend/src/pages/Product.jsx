@@ -6,7 +6,7 @@ import RelatedProducts from "../components/RelatedProducts";
 
 const Product = () => {
   const { productId } = useParams();
-  const { products, currency, addToCart } = useContext(ShopContext);
+  const { products, currency, addToCart, trackProductView } = useContext(ShopContext);
   const [productData, setProductData] = useState(false);
   const [image, setImage] = useState("");
   const [size, setSize] = useState('');
@@ -24,6 +24,12 @@ const Product = () => {
   useEffect(() => {
     fetchProductData();
   }, [productId, products]);
+
+  useEffect(() => {
+    if (productId) {
+      trackProductView(productId);
+    }
+  }, [productId]);
 
   return productData ? (
     <div className="border-t-2 pt-10 transition-opacity ease-in duration-500 opacity-100">

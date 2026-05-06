@@ -4,7 +4,13 @@ const userSchema = new mongoose.Schema({
     name: {type:String, required: true},
     email: {type:String, required: true, unique: true},
     password: {type:String, required: true},
-    cartData: {type: Object, default: {}}
+    cartData: {type: Object, default: {}},
+    lastViewed: {type: [
+        {
+            productId: {type: mongoose.Schema.Types.ObjectId, ref: 'product'},
+            viewedAt: {type: Date, default: Date.now}
+        }
+    ], default: []}
 }, {minimize:false})
 
 const userModel = mongoose.models.user || mongoose.model('user', userSchema);
