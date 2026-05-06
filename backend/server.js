@@ -8,6 +8,7 @@ import productRouter from "./routes/productRoute.js"
 import cartRouter from "./routes/cartRoute.js"
 import orderRouter from "./routes/orderRoute.js"
 import recommendRouter from "./routes/recommendRoute.js"
+import limiter from "./middleware/rateLimiter.js"
 
 // App config
 const app = express()
@@ -18,6 +19,7 @@ connectCloudinary()
 // middlewares
 app.use(express.json())
 app.use(cors())
+app.use(limiter) // Rate limit: 100 requests per IP per minute
 
 // api endpoints
 app.use('/api/user', userRouter)
